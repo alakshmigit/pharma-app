@@ -5,7 +5,7 @@ from typing import Dict, Any
 import json
 
 # Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = "http://localhost:8001"
 
 # Page configuration
 st.set_page_config(
@@ -116,6 +116,7 @@ def show_create_order():
         with col2:
             quantity = st.number_input("Quantity", min_value=1, value=1)
             pack = st.text_input("Pack", placeholder="Enter pack information")
+            order_date = st.date_input("Order Date")
         
         st.subheader("Ingredients")
         col3, col4 = st.columns(2)
@@ -146,6 +147,7 @@ def show_create_order():
                     "status": status,
                     "quantity": quantity,
                     "pack": pack,
+                    "order_date": order_date.isoformat(),
                     **ingredients
                 }
                 
@@ -210,6 +212,11 @@ def show_view_orders():
                 with col2:
                     st.write(f"**Quantity:** {order['quantity']}")
                     st.write(f"**Pack:** {order['pack']}")
+                    order_date = order.get('order_date')
+                    if order_date:
+                        st.write(f"**Order Date:** {pd.to_datetime(order_date).strftime('%Y-%m-%d')}")
+                    else:
+                        st.write("**Order Date:** Not set")
                     st.write(f"**Sub-Orders:** {sub_order_count}")
                 
                 # Ingredients section
@@ -277,6 +284,12 @@ def show_view_orders():
                             st.write(f"• **Approved By:** {approved_by or 'Not specified'}")
                         
                         with col3:
+                            main_order_date = sub_order.get('main_order_date')
+                            if main_order_date:
+                                st.write(f"• **Main Order Date:** {pd.to_datetime(main_order_date).strftime('%Y-%m-%d')}")
+                            else:
+                                st.write("• **Main Order Date:** Not specified")
+                            
                             sub_order_date = sub_order.get('sub_order_date')
                             if sub_order_date:
                                 st.write(f"• **Sub-Order Date:** {pd.to_datetime(sub_order_date).strftime('%Y-%m-%d')}")
@@ -422,6 +435,11 @@ def show_update_order():
                     with col2:
                         st.write(f"**Quantity:** {current_order['quantity']}")
                         st.write(f"**Pack:** {current_order['pack']}")
+                        order_date = current_order.get('order_date')
+                        if order_date:
+                            st.write(f"**Order Date:** {pd.to_datetime(order_date).strftime('%Y-%m-%d')}")
+                        else:
+                            st.write("**Order Date:** Not set")
                         st.write(f"**Current Sub-Orders:** {len(current_order.get('sub_orders', []))}")
                 
                 # Update form
@@ -440,6 +458,9 @@ def show_update_order():
                                             index=["Open", "In-Process", "Closed"].index(current_order['status']))
                         quantity = st.number_input("Quantity", min_value=1, value=current_order['quantity'])
                         pack = st.text_input("Pack", value=current_order['pack'])
+                        current_order_date = current_order.get('order_date')
+                        order_date = st.date_input("Order Date", 
+                                                 value=pd.to_datetime(current_order_date).date() if current_order_date else None)
                     
                     st.subheader("Ingredient Requirements")
                     st.info("⚠️ Changing ingredients from 'N' to 'Y' will create new sub-orders. Changing from 'Y' to 'N' or 'N/A' will remove existing sub-orders.")
@@ -530,6 +551,7 @@ def show_update_order():
                             "status": status,
                             "quantity": quantity,
                             "pack": pack,
+                            "order_date": order_date.isoformat() if order_date else None,
                             "carton": carton,
                             "label": label,
                             "rm": rm,

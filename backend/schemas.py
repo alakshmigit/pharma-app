@@ -20,6 +20,7 @@ class OrderBase(BaseModel):
     status: StatusEnum = StatusEnum.OPEN
     quantity: int
     pack: str
+    order_date: Optional[datetime] = None
     carton: IngredientEnum = IngredientEnum.NA
     label: IngredientEnum = IngredientEnum.NA
     rm: IngredientEnum = IngredientEnum.NA
@@ -39,6 +40,7 @@ class OrderUpdate(BaseModel):
     status: Optional[StatusEnum] = None
     quantity: Optional[int] = None
     pack: Optional[str] = None
+    order_date: Optional[datetime] = None
     carton: Optional[IngredientEnum] = None
     label: Optional[IngredientEnum] = None
     rm: Optional[IngredientEnum] = None

@@ -13,6 +13,7 @@ class Order(Base):
     status = Column(String(50), nullable=False, default="Open")
     quantity = Column(Integer, nullable=False)
     pack = Column(String(100), nullable=False)
+    order_date = Column(DateTime, nullable=False, default=datetime.utcnow)
     
     # Ingredients
     carton = Column(String(10), nullable=False, default="N/A")

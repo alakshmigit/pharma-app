@@ -31,7 +31,8 @@ def create_order(db: Session, order: schemas.OrderCreate):
             sub_order = models.SubOrder(
                 order_id=db_order.order_id,
                 ingredient_type=ingredient_name,
-                status="Open"
+                status="Open",
+                main_order_date=db_order.order_date
             )
             db.add(sub_order)
     
@@ -68,7 +69,8 @@ def update_order(db: Session, order_id: int, order_update: schemas.OrderUpdate):
                     sub_order = models.SubOrder(
                         order_id=db_order.order_id,
                         ingredient_type=ingredient_name,
-                        status="Open"
+                        status="Open",
+                        main_order_date=db_order.order_date
                     )
                     db.add(sub_order)
         
