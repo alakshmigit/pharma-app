@@ -236,8 +236,6 @@ def show_view_orders():
                         sub_order_data.append({
                             'Sub-Order ID': sub_order['sub_order_id'],
                             'Ingredient': sub_order['ingredient_type'].title(),
-                            'Quantity': sub_order['quantity'],
-                            'Pack': sub_order['pack'],
                             'Status': sub_order['status']
                         })
                     

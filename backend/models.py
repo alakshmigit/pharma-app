@@ -32,8 +32,6 @@ class SubOrder(Base):
     sub_order_id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.order_id"), nullable=False)
     ingredient_type = Column(String(50), nullable=False)  # carton, label, rm, etc.
-    quantity = Column(Integer, nullable=False)
-    pack = Column(String(100), nullable=False)
     status = Column(String(50), nullable=False, default="Open")
     
     # Relationship

@@ -49,8 +49,6 @@ class OrderUpdate(BaseModel):
 
 class SubOrderBase(BaseModel):
     ingredient_type: str
-    quantity: int
-    pack: str
     status: StatusEnum = StatusEnum.OPEN
 
 class SubOrderCreate(SubOrderBase):
