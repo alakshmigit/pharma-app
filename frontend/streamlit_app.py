@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from typing import Dict, Any
 import json
+from datetime import datetime, time
 
 # Configuration
 API_BASE_URL = "http://localhost:8001"
@@ -140,6 +141,9 @@ def show_create_order():
         
         if submitted:
             if company_name and product_name and molecule and pack:
+                # Convert date to datetime with default time (00:00:00)
+                order_datetime = datetime.combine(order_date, time(0, 0, 0))
+                
                 order_data = {
                     "company_name": company_name,
                     "product_name": product_name,
@@ -147,7 +151,7 @@ def show_create_order():
                     "status": status,
                     "quantity": quantity,
                     "pack": pack,
-                    "order_date": order_date.isoformat(),
+                    "order_date": order_datetime.isoformat(),
                     **ingredients
                 }
                 
@@ -544,6 +548,9 @@ def show_update_order():
                     
                     if submitted:
                         # Prepare update data
+                        # Convert date to datetime with default time (00:00:00)
+                        order_datetime = datetime.combine(order_date, time(0, 0, 0)) if order_date else None
+                        
                         update_data = {
                             "company_name": company_name,
                             "product_name": product_name,
@@ -551,7 +558,7 @@ def show_update_order():
                             "status": status,
                             "quantity": quantity,
                             "pack": pack,
-                            "order_date": order_date.isoformat() if order_date else None,
+                            "order_date": order_datetime.isoformat() if order_datetime else None,
                             "carton": carton,
                             "label": label,
                             "rm": rm,
