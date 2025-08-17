@@ -496,57 +496,68 @@ def show_update_order():
                         shippers = st.selectbox("Shippers", ["Y", "N", "N/A"], 
                                               index=["Y", "N", "N/A"].index(current_order['shippers']))
                     
-                    # Show ingredient changes preview
-                    st.subheader("Ingredient Changes Preview")
-                    
-                    current_ingredients = {
-                        'carton': current_order['carton'],
-                        'label': current_order['label'],
-                        'rm': current_order['rm'],
-                        'sterios': current_order['sterios'],
-                        'bottles': current_order['bottles'],
-                        'm_cups': current_order['m_cups'],
-                        'caps': current_order['caps'],
-                        'shippers': current_order['shippers']
-                    }
-                    
-                    new_ingredients = {
-                        'carton': carton,
-                        'label': label,
-                        'rm': rm,
-                        'sterios': sterios,
-                        'bottles': bottles,
-                        'm_cups': m_cups,
-                        'caps': caps,
-                        'shippers': shippers
-                    }
-                    
-                    # Calculate changes
-                    will_add_suborders = []
-                    will_remove_suborders = []
-                    
-                    for ingredient, new_value in new_ingredients.items():
-                        current_value = current_ingredients[ingredient]
-                        if current_value != 'Y' and new_value == 'Y':
-                            will_add_suborders.append(ingredient)
-                        elif current_value == 'Y' and new_value != 'Y':
-                            will_remove_suborders.append(ingredient)
-                    
-                    if will_add_suborders or will_remove_suborders:
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if will_add_suborders:
-                                st.success(f"✅ Will CREATE sub-orders for: {', '.join(will_add_suborders)}")
-                        with col2:
-                            if will_remove_suborders:
-                                st.warning(f"🗑️ Will REMOVE sub-orders for: {', '.join(will_remove_suborders)}")
-                    else:
-                        st.info("No ingredient changes detected.")
-                    
                     # Submit button
                     submitted = st.form_submit_button("Update Order", type="primary")
                     
                     if submitted:
+                        # Check for ingredient changes
+                        current_ingredients = {
+                            'carton': current_order['carton'],
+                            'label': current_order['label'],
+                            'rm': current_order['rm'],
+                            'sterios': current_order['sterios'],
+                            'bottles': current_order['bottles'],
+                            'm_cups': current_order['m_cups'],
+                            'caps': current_order['caps'],
+                            'shippers': current_order['shippers']
+                        }
+                        
+                        new_ingredients = {
+                            'carton': carton,
+                            'label': label,
+                            'rm': rm,
+                            'sterios': sterios,
+                            'bottles': bottles,
+                            'm_cups': m_cups,
+                            'caps': caps,
+                            'shippers': shippers
+                        }
+                        
+                        # Calculate changes
+                        will_add_suborders = []
+                        will_remove_suborders = []
+                        
+                        for ingredient, new_value in new_ingredients.items():
+                            current_value = current_ingredients[ingredient]
+                            if current_value != 'Y' and new_value == 'Y':
+                                will_add_suborders.append(ingredient)
+                            elif current_value == 'Y' and new_value != 'Y':
+                                will_remove_suborders.append(ingredient)
+                        
+                        # Show ingredient changes
+                        if will_add_suborders or will_remove_suborders:
+                            st.subheader("Ingredient Changes Detected:")
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                if will_add_suborders:
+                                    st.success(f"✅ Will CREATE sub-orders for: {', '.join(will_add_suborders)}")
+                            with col2:
+                                if will_remove_suborders:
+                                    st.warning(f"🗑️ Will REMOVE sub-orders for: {', '.join(will_remove_suborders)}")
+                        else:
+                            # Check if any ingredients actually changed (not just Y->Y transitions)
+                            ingredient_changes = []
+                            for ingredient, new_value in new_ingredients.items():
+                                current_value = current_ingredients[ingredient]
+                                if current_value != new_value:
+                                    ingredient_changes.append(f"{ingredient}: {current_value} → {new_value}")
+                            
+                            if ingredient_changes:
+                                st.info(f"Ingredient changes detected: {', '.join(ingredient_changes)}")
+                                st.info("Note: Sub-orders are only created/removed when ingredients change to/from 'Y'")
+                            else:
+                                st.info("No ingredient changes detected.")
+                        
                         # Prepare update data
                         # Convert date to datetime with default time (00:00:00)
                         order_datetime = datetime.combine(order_date, time(0, 0, 0)) if order_date else None
