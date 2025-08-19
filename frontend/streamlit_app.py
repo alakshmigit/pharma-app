@@ -4,6 +4,8 @@ import pandas as pd
 from typing import Dict, Any
 import json
 from datetime import datetime, time
+from auth_utils import is_authenticated, get_auth_headers, verify_token, get_current_user
+from login_page import show_login_page, show_user_info
 
 # Configuration
 API_BASE_URL = "http://localhost:8001"
@@ -16,17 +18,19 @@ st.set_page_config(
 )
 
 def make_api_request(method: str, endpoint: str, data: Dict[Any, Any] = None):
-    """Make API request to backend"""
+    """Make API request to backend with authentication"""
     url = f"{API_BASE_URL}{endpoint}"
+    headers = get_auth_headers()
+    
     try:
         if method == "GET":
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
         elif method == "POST":
-            response = requests.post(url, json=data)
+            response = requests.post(url, json=data, headers=headers)
         elif method == "PUT":
-            response = requests.put(url, json=data)
+            response = requests.put(url, json=data, headers=headers)
         elif method == "DELETE":
-            response = requests.delete(url)
+            response = requests.delete(url, headers=headers)
         
         if response.status_code in [200, 201]:
             return response.json()
@@ -41,6 +45,23 @@ def make_api_request(method: str, endpoint: str, data: Dict[Any, Any] = None):
         return None
 
 def main():
+    # Check authentication
+    if not is_authenticated():
+        show_login_page()
+        return
+    
+    # Verify token is still valid
+    if not verify_token():
+        st.error("Session expired. Please login again.")
+        from auth_utils import logout
+        logout()
+        st.rerun()
+        return
+    
+    # Show user info at the top
+    show_user_info()
+    st.divider()
+    
     st.title("📦 Order Management System")
     
     # Sidebar navigation
