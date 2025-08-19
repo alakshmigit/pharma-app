@@ -359,7 +359,24 @@ Once both services are running:
 
 ## 🧪 Testing the Installation
 
-### Test Database Connection:
+### Comprehensive Test Script:
+```bash
+# Run all tests automatically
+python test_local_setup.py
+```
+
+This script tests:
+- ✅ Python package imports
+- ✅ Environment configuration
+- ✅ Database connectivity
+- ✅ Database tables existence
+- ✅ Backend API health
+- ✅ Frontend accessibility
+- ✅ API endpoint security
+
+### Manual Tests:
+
+#### Test Database Connection:
 ```bash
 python -c "
 import sys
@@ -376,13 +393,13 @@ connection.close()
 "
 ```
 
-### Test Backend API:
+#### Test Backend API:
 ```bash
 curl http://localhost:8000/health
 # Should return: {"status": "healthy"}
 ```
 
-### Test Frontend:
+#### Test Frontend:
 Open http://localhost:8501 in your browser
 
 ## 🔧 Troubleshooting
