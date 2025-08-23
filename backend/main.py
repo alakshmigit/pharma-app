@@ -9,12 +9,17 @@ from typing import List
 from datetime import timedelta
 import uvicorn
 
-import crud, models, schemas
-from auth import authenticate_user, create_access_token, get_current_active_user, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend import crud, models, schemas
+from backend.auth import authenticate_user, create_access_token, get_current_active_user, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES
 from config.database import SessionLocal, engine, get_db
 
-# Create database tables
-models.Base.metadata.create_all(bind=engine)
+# Create database tables (only if database is available)
+try:
+    models.Base.metadata.create_all(bind=engine)
+    print("✅ Database tables created successfully")
+except Exception as e:
+    print(f"⚠️  Database not available during startup: {e}")
+    print("   Tables will be created when database becomes available")
 
 app = FastAPI(title="Order Management API", version="1.0.0")
 

@@ -1,6 +1,6 @@
 # 🏥 Pharma-App: Pharmaceutical Order Management System
 
-A comprehensive pharmaceutical order management system built with Python backend (FastAPI), Streamlit frontend, and MySQL database. Features complete authentication system, AWS deployment infrastructure, and automated local development setup.
+A comprehensive pharmaceutical order management system built with Python backend (FastAPI), Streamlit frontend, and PostgreSQL database. Features complete authentication system, AWS deployment infrastructure, and automated local development setup.
 
 ## ✨ Key Features
 
@@ -52,7 +52,7 @@ Each sub-order includes 10+ detailed fields:
 ### **Core Technologies**
 - **Backend**: FastAPI (Python) - High-performance async API
 - **Frontend**: Streamlit - Interactive web interface  
-- **Database**: MySQL 8.0+ with SQLAlchemy ORM
+- **Database**: PostgreSQL 12+ with SQLAlchemy ORM
 - **Authentication**: JWT tokens with bcrypt password hashing
 - **API Documentation**: Automatic OpenAPI/Swagger
 - **Data Validation**: Pydantic schemas
@@ -83,7 +83,7 @@ pharma-app/
 ├── terraform/               # AWS Infrastructure as Code
 │   ├── main.tf              # Main Terraform configuration
 │   ├── ecs.tf               # ECS Fargate configuration
-│   ├── rds.tf               # RDS MySQL configuration
+│   ├── rds.tf               # RDS PostgreSQL configuration
 │   ├── alb.tf               # Application Load Balancer
 │   ├── ecr.tf               # Container registry
 │   ├── variables.tf         # Terraform variables
@@ -124,18 +124,17 @@ start_app.bat          # Install and start automatically
 
 #### **Prerequisites**
 - **Python 3.8+** (recommended: Python 3.9 or 3.10)
-- **MySQL 8.0+** (or MariaDB 10.3+)
+- **PostgreSQL 12+** (or compatible version)
 - **Git** for version control
 
-#### **MySQL Database Setup**
+#### **PostgreSQL Database Setup**
 ```sql
-mysql -u root -p
+sudo -u postgres psql
 
 CREATE DATABASE pharma_orders;
-CREATE USER 'pharma_user'@'localhost' IDENTIFIED BY 'pharma_password_123';
-GRANT ALL PRIVILEGES ON pharma_orders.* TO 'pharma_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
+CREATE USER pharma_user WITH PASSWORD 'pharma_password_123';
+GRANT ALL PRIVILEGES ON DATABASE pharma_orders TO pharma_user;
+\q
 ```
 
 #### **Manual Setup (if scripts don't work)**
@@ -158,7 +157,7 @@ EXIT;
 
 3. **Configure Environment** (create `.env` file):
    ```env
-   DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+   DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
    SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
    ALGORITHM=HS256
    ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -201,7 +200,7 @@ aws configure
 
 #### **Cost Estimation**
 - **Small Production**: ~$55-80/month
-- **Includes**: ECS Fargate, RDS MySQL, ALB, VPC
+- **Includes**: ECS Fargate, RDS PostgreSQL, ALB, VPC
 
 ### 🌐 **Access Points**
 
@@ -368,7 +367,7 @@ Tests include:
 
 #### **Database Configuration**
 ```env
-DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
 ```
 
 #### **JWT Authentication**
@@ -439,7 +438,7 @@ pip freeze > requirements.txt
 #### **Installation Issues**
 | Issue | Solution |
 |-------|----------|
-| MySQL connection error | Check MySQL service: `sudo systemctl status mysql` |
+| PostgreSQL connection error | Check PostgreSQL service: `sudo systemctl status postgresql` |
 | Port conflicts (8000, 8501) | Kill processes: `lsof -i :8000` then `kill -9 <PID>` |
 | Python dependencies | Reinstall: `pip install --upgrade --force-reinstall -r requirements.txt` |
 | Virtual environment issues | Recreate: `rm -rf venv && python -m venv venv` |
@@ -454,14 +453,14 @@ pip freeze > requirements.txt
 #### **Database Issues**
 | Issue | Solution |
 |-------|----------|
-| Connection refused | Verify MySQL is running and credentials are correct |
+| Connection refused | Verify PostgreSQL is running and credentials are correct |
 | Table doesn't exist | Run `python setup_database.py` to initialize |
 | Migration errors | Drop tables and reinitialize database |
 
 ### **Debug Information**
 - **Frontend Errors**: Check browser console and Streamlit logs
 - **Backend Errors**: Monitor FastAPI logs and `/docs` endpoint
-- **Database Errors**: Check MySQL logs and connection parameters
+- **Database Errors**: Check PostgreSQL logs and connection parameters
 - **Authentication**: Test endpoints with `/docs` interactive interface
 
 ### **Getting Help**
@@ -492,7 +491,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Key Features Summary**
 - ✅ **Complete Authentication System** with JWT tokens
-- ✅ **MySQL Database** with comprehensive schema
+- ✅ **PostgreSQL Database** with comprehensive schema
 - ✅ **AWS Deployment Ready** with Terraform infrastructure
 - ✅ **Local Development Setup** with automated scripts
 - ✅ **Comprehensive Testing** with validation scripts
@@ -503,7 +502,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **FastAPI** for the excellent async web framework
 - **Streamlit** for the intuitive frontend framework
 - **SQLAlchemy** for robust database ORM
-- **MySQL** for reliable database management
+- **PostgreSQL** for reliable database management
 - **AWS** for scalable cloud infrastructure
 - **Terraform** for infrastructure as code
 - **JWT** for secure authentication

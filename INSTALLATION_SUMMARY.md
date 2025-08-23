@@ -51,7 +51,7 @@ start_app.bat          # Install and start
 
 ### **Option 2: Manual Setup**
 
-1. **Prerequisites**: Python 3.8+, MySQL 8.0+
+1. **Prerequisites**: Python 3.8+, PostgreSQL 12+
 2. **Database Setup**: Create `pharma_orders` database
 3. **Environment**: Create virtual environment
 4. **Dependencies**: Install Python packages
@@ -121,7 +121,7 @@ Tests 7 categories:
 - ✅ API security
 
 ### **Manual Verification**:
-1. **Database**: `mysql -u pharma_user -p pharma_orders`
+1. **Database**: `psql -U pharma_user -d pharma_orders -h localhost`
 2. **Backend**: `curl http://localhost:8000/health`
 3. **Frontend**: Open http://localhost:8501
 
@@ -131,7 +131,7 @@ Tests 7 categories:
 
 ### **Database Settings** (`.env`):
 ```env
-DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
 ```
 
 ### **JWT Settings**:
@@ -153,14 +153,14 @@ ENVIRONMENT=development
 
 ## 🆘 **Common Issues & Solutions**
 
-### **MySQL Connection Error**:
+### **PostgreSQL Connection Error**:
 ```bash
-# Check MySQL service
-sudo systemctl status mysql  # Linux
-brew services list | grep mysql  # macOS
+# Check PostgreSQL service
+sudo systemctl status postgresql  # Linux
+brew services list | grep postgresql  # macOS
 
 # Test connection
-mysql -u pharma_user -p pharma_orders
+psql -U pharma_user -d pharma_orders -h localhost
 ```
 
 ### **Port Already in Use**:
@@ -214,16 +214,16 @@ pip freeze > requirements.txt
 ### **Database Management**:
 ```sql
 -- View data
-mysql -u pharma_user -p pharma_orders
+psql -U pharma_user -d pharma_orders -h localhost
 SELECT * FROM users;
 SELECT * FROM orders;
 SELECT * FROM sub_orders;
 
 -- Backup
-mysqldump -u pharma_user -p pharma_orders > backup.sql
+pg_dump -U pharma_user -h localhost pharma_orders > backup.sql
 
 -- Restore
-mysql -u pharma_user -p pharma_orders < backup.sql
+psql -U pharma_user -h localhost pharma_orders < backup.sql
 ```
 
 ---
@@ -233,8 +233,8 @@ mysql -u pharma_user -p pharma_orders < backup.sql
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │    Backend      │    │    Database     │
-│   (Streamlit)   │◄──►│   (FastAPI)     │◄──►│    (MySQL)      │
-│   Port: 8501    │    │   Port: 8000    │    │   Port: 3306    │
+│   (Streamlit)   │◄──►│   (FastAPI)     │◄──►│  (PostgreSQL)   │
+│   Port: 8501    │    │   Port: 8000    │    │   Port: 5432    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 

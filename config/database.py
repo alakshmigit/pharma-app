@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Database configuration - Using SQLite for development
+# Database configuration - Using PostgreSQL
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "sqlite:///./order_management.db"
+    "postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders"
 )
 
 engine = create_engine(DATABASE_URL)

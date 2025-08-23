@@ -29,17 +29,17 @@ fi
 
 echo -e "${GREEN}✅ Python $python_version found${NC}"
 
-# Check if MySQL is installed
-echo -e "${YELLOW}🗄️  Checking MySQL installation...${NC}"
-if command -v mysql &> /dev/null; then
-    echo -e "${GREEN}✅ MySQL found${NC}"
+# Check if PostgreSQL is installed
+echo -e "${YELLOW}🗄️  Checking PostgreSQL installation...${NC}"
+if command -v psql &> /dev/null; then
+    echo -e "${GREEN}✅ PostgreSQL found${NC}"
 else
-    echo -e "${YELLOW}⚠️  MySQL not found. Please install MySQL 8.0 or higher.${NC}"
+    echo -e "${YELLOW}⚠️  PostgreSQL not found. Please install PostgreSQL 12 or higher.${NC}"
     echo -e "${BLUE}💡 Installation instructions:${NC}"
-    echo -e "   Ubuntu/Debian: sudo apt install mysql-server"
-    echo -e "   CentOS/RHEL:   sudo yum install mysql-server"
-    echo -e "   macOS:         brew install mysql"
-    echo -e "   Windows:       Download from https://dev.mysql.com/downloads/mysql/"
+    echo -e "   Ubuntu/Debian: sudo apt install postgresql postgresql-contrib"
+    echo -e "   CentOS/RHEL:   sudo yum install postgresql-server postgresql-contrib"
+    echo -e "   macOS:         brew install postgresql"
+    echo -e "   Windows:       Download from https://www.postgresql.org/download/windows/"
 fi
 
 # Create virtual environment
@@ -71,7 +71,7 @@ if [ -f "backend/requirements.txt" ]; then
     pip install -r backend/requirements.txt
 else
     echo -e "${YELLOW}💡 Installing backend dependencies manually...${NC}"
-    pip install fastapi uvicorn sqlalchemy pymysql python-multipart python-jose[cryptography] passlib[bcrypt] python-dotenv
+    pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart python-jose[cryptography] passlib[bcrypt] python-dotenv
 fi
 
 # Install frontend dependencies
@@ -88,7 +88,7 @@ if [ ! -f ".env" ]; then
     echo -e "${YELLOW}⚙️  Creating .env configuration file...${NC}"
     cat > .env << 'EOF'
 # Database Configuration
-DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
 
 # JWT Configuration
 SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
@@ -111,13 +111,12 @@ fi
 echo -e "\n${GREEN}🎉 Installation completed successfully!${NC}"
 echo -e "${PURPLE}=========================================================${NC}"
 echo -e "${BLUE}📋 Next Steps:${NC}"
-echo -e "${YELLOW}1. Setup MySQL database:${NC}"
-echo -e "   mysql -u root -p"
+echo -e "${YELLOW}1. Setup PostgreSQL database:${NC}"
+echo -e "   sudo -u postgres psql"
 echo -e "   CREATE DATABASE pharma_orders;"
-echo -e "   CREATE USER 'pharma_user'@'localhost' IDENTIFIED BY 'pharma_password_123';"
-echo -e "   GRANT ALL PRIVILEGES ON pharma_orders.* TO 'pharma_user'@'localhost';"
-echo -e "   FLUSH PRIVILEGES;"
-echo -e "   EXIT;"
+echo -e "   CREATE USER pharma_user WITH PASSWORD 'pharma_password_123';"
+echo -e "   GRANT ALL PRIVILEGES ON DATABASE pharma_orders TO pharma_user;"
+echo -e "   \\q"
 echo -e ""
 echo -e "${YELLOW}2. Initialize database tables:${NC}"
 echo -e "   python setup_database.py"

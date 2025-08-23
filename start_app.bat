@@ -26,7 +26,7 @@ if not exist ".env" (
     echo 💡 Creating sample .env file...
     (
         echo # Database Configuration
-        echo DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+        echo DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
         echo.
         echo # JWT Configuration
         echo SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
@@ -59,14 +59,14 @@ REM Setup database
 echo 🏗️ Setting up database...
 python setup_database.py
 if errorlevel 1 (
-    echo ❌ Database setup failed. Please check your MySQL configuration.
+    echo ❌ Database setup failed. Please check your PostgreSQL configuration.
     pause
     exit /b 1
 )
 
 REM Start backend
 echo 📡 Starting Backend API...
-start "Backend API" cmd /k "cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+start "Backend API" cmd /k "uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload"
 
 REM Wait for backend to start
 echo ⏳ Waiting for backend to start...
