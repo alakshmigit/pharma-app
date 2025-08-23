@@ -98,7 +98,8 @@ class Order(OrderBase):
 class UserBase(BaseModel):
     username: str
     email: str
-    full_name: Optional[str] = None
+    first_name: str
+    last_name: str
 
 class UserCreate(UserBase):
     password: str
@@ -110,7 +111,7 @@ class UserLogin(BaseModel):
 class User(UserBase):
     user_id: int
     is_active: bool = True
-    created_at: datetime
+    created_date: datetime
     
     class Config:
         from_attributes = True
