@@ -32,7 +32,7 @@ if [ ! -f ".env" ]; then
     echo -e "${YELLOW}💡 Creating sample .env file...${NC}"
     cat > .env << 'EOF'
 # Database Configuration
-DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
 
 # JWT Configuration
 SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
@@ -65,7 +65,7 @@ fi
 echo -e "${YELLOW}🏗️  Setting up database...${NC}"
 python setup_database.py
 if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Database setup failed. Please check your MySQL configuration.${NC}"
+    echo -e "${RED}❌ Database setup failed. Please check your PostgreSQL configuration.${NC}"
     exit 1
 fi
 

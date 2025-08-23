@@ -26,7 +26,7 @@ if not exist ".env" (
     echo 💡 Creating sample .env file...
     (
         echo # Database Configuration
-        echo DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+        echo DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
         echo.
         echo # JWT Configuration
         echo SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
@@ -59,7 +59,7 @@ REM Setup database
 echo 🏗️ Setting up database...
 python setup_database.py
 if errorlevel 1 (
-    echo ❌ Database setup failed. Please check your MySQL configuration.
+    echo ❌ Database setup failed. Please check your PostgreSQL configuration.
     pause
     exit /b 1
 )

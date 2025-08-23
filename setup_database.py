@@ -18,7 +18,7 @@ try:
     from dotenv import load_dotenv
 except ImportError as e:
     print(f"❌ Missing required packages. Please install dependencies first:")
-    print(f"   pip install sqlalchemy pymysql python-dotenv")
+    print(f"   pip install sqlalchemy psycopg2-binary python-dotenv")
     print(f"   Error: {e}")
     sys.exit(1)
 
@@ -34,7 +34,7 @@ def main():
     if not DATABASE_URL:
         print("❌ DATABASE_URL not found in environment variables")
         print("   Please create a .env file with DATABASE_URL")
-        print("   Example: DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders")
+        print("   Example: DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders")
         sys.exit(1)
     
     print(f"📡 Connecting to database...")
@@ -60,11 +60,11 @@ def main():
         
         # Show table info
         with engine.connect() as connection:
-            # Check if tables exist
+            # Check if tables exist (PostgreSQL version)
             tables_query = text("""
-                SELECT TABLE_NAME 
-                FROM INFORMATION_SCHEMA.TABLES 
-                WHERE TABLE_SCHEMA = DATABASE()
+                SELECT tablename 
+                FROM pg_tables 
+                WHERE schemaname = 'public'
             """)
             result = connection.execute(tables_query)
             tables = [row[0] for row in result]
@@ -80,7 +80,7 @@ def main():
     except Exception as e:
         print(f"❌ Error setting up database: {e}")
         print("\n🔧 Troubleshooting tips:")
-        print("   1. Make sure MySQL is running")
+        print("   1. Make sure PostgreSQL is running")
         print("   2. Verify database credentials in .env file")
         print("   3. Ensure the database 'pharma_orders' exists")
         print("   4. Check if user has proper permissions")

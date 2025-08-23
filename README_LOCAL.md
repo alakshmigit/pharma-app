@@ -11,7 +11,7 @@ cd pharma-app
 # Install everything
 ./install.sh
 
-# Setup database (after MySQL is configured)
+# Setup database (after PostgreSQL is configured)
 python setup_database.py
 
 # Start application
@@ -32,18 +32,17 @@ start_app.bat
 
 ### Required:
 - **Python 3.8+** 
-- **MySQL 8.0+** (or MariaDB 10.3+)
+- **PostgreSQL 12+** (or compatible version)
 - **Git**
 
-### MySQL Setup:
+### PostgreSQL Setup:
 ```sql
-mysql -u root -p
+sudo -u postgres psql
 
 CREATE DATABASE pharma_orders;
-CREATE USER 'pharma_user'@'localhost' IDENTIFIED BY 'pharma_password_123';
-GRANT ALL PRIVILEGES ON pharma_orders.* TO 'pharma_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
+CREATE USER pharma_user WITH PASSWORD 'pharma_password_123';
+GRANT ALL PRIVILEGES ON DATABASE pharma_orders TO pharma_user;
+\q
 ```
 
 ## 🌐 Access Points
@@ -77,7 +76,7 @@ pip install streamlit requests python-dotenv
 ### 3. Configure Environment:
 Create `.env` file:
 ```env
-DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
 SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -135,14 +134,14 @@ streamlit run streamlit_app.py --server.port 8501
 
 ### Common Issues:
 
-**MySQL Connection Error:**
+**PostgreSQL Connection Error:**
 ```bash
-# Check MySQL service
-sudo systemctl status mysql  # Linux
-brew services list | grep mysql  # macOS
+# Check PostgreSQL service
+sudo systemctl status postgresql  # Linux
+brew services list | grep postgresql  # macOS
 
 # Test connection
-mysql -u pharma_user -p pharma_orders
+psql -U pharma_user -d pharma_orders -h localhost
 ```
 
 **Port Already in Use:**

@@ -1,5 +1,6 @@
-import mysql.connector
-from mysql.connector import Error
+import psycopg2
+from psycopg2 import Error
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
 from dotenv import load_dotenv
 
@@ -8,40 +9,47 @@ load_dotenv()
 def create_database():
     """Create the database if it doesn't exist"""
     try:
-        # Connect to MySQL server (without specifying database)
-        connection = mysql.connector.connect(
+        # Connect to PostgreSQL server (to postgres database)
+        connection = psycopg2.connect(
             host=os.getenv('DB_HOST', 'localhost'),
-            user=os.getenv('DB_USER', 'root'),
+            user=os.getenv('DB_USER', 'postgres'),
             password=os.getenv('DB_PASSWORD', 'password'),
-            port=os.getenv('DB_PORT', 3306)
+            port=os.getenv('DB_PORT', 5432),
+            database='postgres'
         )
         
-        if connection.is_connected():
-            cursor = connection.cursor()
-            
-            # Create database
-            database_name = os.getenv('DB_NAME', 'order_management')
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-            print(f"Database '{database_name}' created successfully or already exists")
-            
-            cursor.close()
-            connection.close()
+        connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = connection.cursor()
+        
+        # Create database
+        database_name = os.getenv('DB_NAME', 'pharma_orders')
+        cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{database_name}'")
+        exists = cursor.fetchone()
+        
+        if not exists:
+            cursor.execute(f"CREATE DATABASE {database_name}")
+            print(f"Database '{database_name}' created successfully")
+        else:
+            print(f"Database '{database_name}' already exists")
+        
+        cursor.close()
+        connection.close()
             
     except Error as e:
-        print(f"Error while connecting to MySQL: {e}")
+        print(f"Error while connecting to PostgreSQL: {e}")
 
 def create_sample_data():
     """Create some sample data for testing"""
     try:
-        connection = mysql.connector.connect(
+        connection = psycopg2.connect(
             host=os.getenv('DB_HOST', 'localhost'),
-            user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', 'password'),
-            database=os.getenv('DB_NAME', 'order_management'),
-            port=os.getenv('DB_PORT', 3306)
+            user=os.getenv('DB_USER', 'pharma_user'),
+            password=os.getenv('DB_PASSWORD', 'pharma_password_123'),
+            database=os.getenv('DB_NAME', 'pharma_orders'),
+            port=os.getenv('DB_PORT', 5432)
         )
         
-        if connection.is_connected():
+        if connection:
             cursor = connection.cursor()
             
             # Sample orders
@@ -59,7 +67,7 @@ def create_sample_data():
             connection.close()
             
     except Error as e:
-        print(f"Error while connecting to MySQL: {e}")
+        print(f"Error while connecting to PostgreSQL: {e}")
 
 if __name__ == "__main__":
     create_database()

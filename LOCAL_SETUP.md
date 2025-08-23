@@ -4,7 +4,7 @@
 
 ### System Requirements
 - **Python 3.8+** (recommended: Python 3.9 or 3.10)
-- **MySQL 8.0+** (or MariaDB 10.3+)
+- **PostgreSQL 12+** (or compatible version)
 - **Git** for version control
 - **pip** (Python package manager)
 
@@ -16,71 +16,70 @@
 
 ## 🛠️ Installation Steps
 
-### Step 1: Install MySQL Database
+### Step 1: Install PostgreSQL Database
 
 #### On Windows:
-1. Download MySQL from: https://dev.mysql.com/downloads/mysql/
+1. Download PostgreSQL from: https://www.postgresql.org/download/windows/
 2. Run the installer and follow the setup wizard
-3. Set root password (remember this!)
-4. Start MySQL service
+3. Set postgres user password (remember this!)
+4. Start PostgreSQL service
 
 #### On macOS:
 ```bash
 # Using Homebrew (recommended)
-brew install mysql
-brew services start mysql
+brew install postgresql
+brew services start postgresql
 
-# Set root password
-mysql_secure_installation
+# Create database user
+createuser -s postgres
 ```
 
 #### On Ubuntu/Debian:
 ```bash
 sudo apt update
-sudo apt install mysql-server
-sudo systemctl start mysql
-sudo systemctl enable mysql
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
-# Secure installation
-sudo mysql_secure_installation
+# Set up postgres user
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'your_password';"
 ```
 
 #### On CentOS/RHEL:
 ```bash
-sudo yum install mysql-server
+sudo yum install postgresql postgresql-server
 # or for newer versions:
-sudo dnf install mysql-server
+sudo dnf install postgresql postgresql-server
 
-sudo systemctl start mysqld
-sudo systemctl enable mysqld
+sudo postgresql-setup initdb
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
-# Get temporary root password
-sudo grep 'temporary password' /var/log/mysqld.log
-mysql_secure_installation
+# Set up postgres user
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'your_password';"
 ```
 
 ### Step 2: Create Database and User
 
 ```sql
--- Connect to MySQL as root
-mysql -u root -p
+-- Connect to PostgreSQL as postgres user
+sudo -u postgres psql
 
 -- Create database
 CREATE DATABASE pharma_orders;
 
 -- Create user for the application
-CREATE USER 'pharma_user'@'localhost' IDENTIFIED BY 'pharma_password_123';
+CREATE USER pharma_user WITH PASSWORD 'pharma_password_123';
 
 -- Grant privileges
-GRANT ALL PRIVILEGES ON pharma_orders.* TO 'pharma_user'@'localhost';
-FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON DATABASE pharma_orders TO pharma_user;
 
 -- Verify database creation
-SHOW DATABASES;
-USE pharma_orders;
+\l
+\c pharma_orders;
 
--- Exit MySQL
-EXIT;
+-- Exit PostgreSQL
+\q
 ```
 
 ### Step 3: Clone and Setup Application
@@ -108,7 +107,7 @@ pip install --upgrade pip
 ```bash
 # Install backend dependencies
 cd backend
-pip install fastapi uvicorn sqlalchemy pymysql python-multipart python-jose[cryptography] passlib[bcrypt] python-dotenv
+pip install fastapi uvicorn sqlalchemy psycopg2-binary python-multipart python-jose[cryptography] passlib[bcrypt] python-dotenv
 
 # Install frontend dependencies
 cd ../frontend
@@ -131,7 +130,7 @@ Add the following content to `.env`:
 
 ```env
 # Database Configuration
-DATABASE_URL=mysql+pymysql://pharma_user:pharma_password_123@localhost:3306/pharma_orders
+DATABASE_URL=postgresql+psycopg2://pharma_user:pharma_password_123@localhost:5432/pharma_orders
 
 # JWT Configuration
 SECRET_KEY=your-super-secret-jwt-key-change-this-in-production
@@ -406,15 +405,15 @@ Open http://localhost:8501 in your browser
 
 ### Common Issues:
 
-#### 1. MySQL Connection Error
+#### 1. PostgreSQL Connection Error
 ```bash
-# Check MySQL service status
+# Check PostgreSQL service status
 # On Linux/macOS:
-sudo systemctl status mysql
+sudo systemctl status postgresql
 # On Windows: Check Services.msc
 
-# Test MySQL connection
-mysql -u pharma_user -p pharma_orders
+# Test PostgreSQL connection
+psql -U pharma_user -d pharma_orders -h localhost
 ```
 
 #### 2. Port Already in Use
@@ -460,12 +459,12 @@ print('SECRET_KEY:', os.getenv('SECRET_KEY'))
 
 ### View Tables:
 ```sql
-mysql -u pharma_user -p pharma_orders
+psql -U pharma_user -d pharma_orders -h localhost
 
-SHOW TABLES;
-DESCRIBE users;
-DESCRIBE orders;
-DESCRIBE sub_orders;
+\dt
+\d users
+\d orders
+\d sub_orders
 ```
 
 ### Sample Data:
@@ -485,12 +484,12 @@ LIMIT 10;
 
 ### Backup Database:
 ```bash
-mysqldump -u pharma_user -p pharma_orders > pharma_backup.sql
+pg_dump -U pharma_user -h localhost pharma_orders > pharma_backup.sql
 ```
 
 ### Restore Database:
 ```bash
-mysql -u pharma_user -p pharma_orders < pharma_backup.sql
+psql -U pharma_user -h localhost pharma_orders < pharma_backup.sql
 ```
 
 ## 🔄 Development Workflow
@@ -540,7 +539,7 @@ pip freeze > requirements.txt
 ## 🎉 You're Ready!
 
 Your pharmaceutical order management application is now running locally with:
-- ✅ **MySQL database** for data persistence
+- ✅ **PostgreSQL database** for data persistence
 - ✅ **FastAPI backend** with JWT authentication
 - ✅ **Streamlit frontend** with modern UI
 - ✅ **Complete CRUD operations** for orders and sub-orders

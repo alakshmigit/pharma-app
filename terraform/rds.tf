@@ -11,12 +11,17 @@ resource "aws_db_subnet_group" "main" {
 
 # RDS Parameter Group
 resource "aws_db_parameter_group" "main" {
-  family = "mysql8.0"
+  family = "postgres15"
   name   = "${var.project_name}-db-params"
 
   parameter {
-    name  = "innodb_buffer_pool_size"
-    value = "{DBInstanceClassMemory*3/4}"
+    name  = "shared_preload_libraries"
+    value = "pg_stat_statements"
+  }
+
+  parameter {
+    name  = "log_statement"
+    value = "all"
   }
 
   tags = {
@@ -27,11 +32,11 @@ resource "aws_db_parameter_group" "main" {
 
 # RDS Instance
 resource "aws_db_instance" "main" {
-  identifier = "${var.project_name}-mysql"
+  identifier = "${var.project_name}-postgres"
 
   # Engine
-  engine         = "mysql"
-  engine_version = "8.0"
+  engine         = "postgres"
+  engine_version = "15.4"
   instance_class = var.db_instance_class
 
   # Storage
@@ -44,7 +49,7 @@ resource "aws_db_instance" "main" {
   db_name  = var.db_name
   username = var.db_username
   password = var.db_password
-  port     = 3306
+  port     = 5432
 
   # Network & Security
   vpc_security_group_ids = [aws_security_group.rds.id]
@@ -68,7 +73,7 @@ resource "aws_db_instance" "main" {
   skip_final_snapshot = true
 
   tags = {
-    Name        = "${var.project_name}-mysql"
+    Name        = "${var.project_name}-postgres"
     Environment = var.environment
   }
 }

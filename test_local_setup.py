@@ -22,7 +22,7 @@ def test_imports():
         import fastapi
         import uvicorn
         import sqlalchemy
-        import pymysql
+        import psycopg2
         import streamlit
         import requests
         from dotenv import load_dotenv
@@ -230,7 +230,7 @@ def main():
     else:
         print(f"\n⚠️  {total - passed} test(s) failed. Please check the issues above.")
         print("\n💡 Common solutions:")
-        print("   - Make sure MySQL is running")
+        print("   - Make sure PostgreSQL is running")
         print("   - Run: python setup_database.py")
         print("   - Start services: ./start_app.sh")
         print("   - Check .env configuration")

@@ -7,7 +7,7 @@ This guide provides comprehensive instructions for deploying your pharmaceutical
 The deployment creates a production-ready infrastructure with:
 
 - **ECS Fargate**: Serverless container hosting for backend and frontend
-- **RDS MySQL**: Managed database with automated backups
+- **RDS PostgreSQL**: Managed database with automated backups
 - **Application Load Balancer**: High availability with health checks
 - **VPC**: Secure networking with public/private subnets
 - **ECR**: Container registry for Docker images
@@ -204,10 +204,10 @@ echo "🎉 Application URL: $APPLICATION_URL"
 ### Security Groups
 - **ALB Security Group**: HTTP/HTTPS from internet
 - **ECS Security Group**: Backend (8001) and Frontend (8501) from ALB
-- **RDS Security Group**: MySQL (3306) from ECS tasks only
+- **RDS Security Group**: PostgreSQL (5432) from ECS tasks only
 
 ### Database
-- **Engine**: MySQL 8.0
+- **Engine**: PostgreSQL 15.4
 - **Instance**: db.t3.micro (burstable performance)
 - **Storage**: 20GB GP2 with auto-scaling to 100GB
 - **Backup**: 7-day retention with automated backups
@@ -226,7 +226,7 @@ echo "🎉 Application URL: $APPLICATION_URL"
 | Service | Configuration | Estimated Cost |
 |---------|---------------|----------------|
 | ECS Fargate | 2 tasks × 0.25 vCPU × 512MB | $15-25 |
-| RDS MySQL | db.t3.micro | $15-20 |
+| RDS PostgreSQL | db.t3.micro | $15-20 |
 | Application Load Balancer | Standard ALB | $20-25 |
 | NAT Gateway | Single NAT | $45-50 |
 | Data Transfer | Moderate usage | $5-10 |
@@ -256,9 +256,9 @@ echo "🎉 Application URL: $APPLICATION_URL"
 
 **Backend Container**:
 ```bash
-DATABASE_URL=mysql://user:pass@host/db
+DATABASE_URL=postgresql://user:pass@host/db
 DB_HOST=rds-endpoint
-DB_PORT=3306
+DB_PORT=5432
 DB_NAME=pharma_orders
 DB_USER=admin
 DB_PASSWORD=secure-password
