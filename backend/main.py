@@ -47,10 +47,19 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
             detail="Username already registered"
         )
     
+    # Check if email already exists
+    db_email = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+    
     # Create new user
     hashed_password = get_password_hash(user.password)
     db_user = models.User(
         username=user.username,
+        email=user.email,
         first_name=user.first_name,
         last_name=user.last_name,
         hashed_password=hashed_password
