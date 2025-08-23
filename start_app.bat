@@ -66,7 +66,7 @@ if errorlevel 1 (
 
 REM Start backend
 echo 📡 Starting Backend API...
-start "Backend API" cmd /k "cd backend && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+start "Backend API" cmd /k "uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload"
 
 REM Wait for backend to start
 echo ⏳ Waiting for backend to start...

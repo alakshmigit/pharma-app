@@ -87,10 +87,8 @@ trap cleanup INT
 
 # Start backend in background
 echo -e "${YELLOW}📡 Starting Backend API...${NC}"
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload &
+uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload &
 BACKEND_PID=$!
-cd ..
 
 # Wait for backend to start
 echo -e "${YELLOW}⏳ Waiting for backend to start...${NC}"
