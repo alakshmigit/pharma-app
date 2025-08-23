@@ -294,7 +294,7 @@ aws ecs describe-task-definition --task-definition pharma-order-mgmt-backend
 **Solutions**:
 ```bash
 # Verify RDS endpoint
-aws rds describe-db-instances --db-instance-identifier pharma-order-mgmt-mysql
+aws rds describe-db-instances --db-instance-identifier pharma-order-mgmt-postgres
 
 # Check security groups
 aws ec2 describe-security-groups --group-names pharma-order-mgmt-rds-*
@@ -302,7 +302,7 @@ aws ec2 describe-security-groups --group-names pharma-order-mgmt-rds-*
 # Test connectivity from ECS task
 aws ecs execute-command --cluster pharma-order-mgmt-cluster \
     --task TASK_ID --container backend \
-    --command "mysql -h RDS_ENDPOINT -u admin -p"
+    --command "psql -h RDS_ENDPOINT -U admin -d pharma_orders"
 ```
 
 #### 3. Load Balancer Health Checks Failing
@@ -386,10 +386,10 @@ terraform apply  # If infrastructure changes
 ### Database Migrations
 ```bash
 # Connect to RDS instance
-mysql -h $(terraform output -raw database_endpoint) -u admin -p
+psql -h $(terraform output -raw database_endpoint) -U admin -d pharma_orders
 
 # Run migration scripts
-mysql -h RDS_ENDPOINT -u admin -p pharma_orders < migration.sql
+psql -h RDS_ENDPOINT -U admin -d pharma_orders < migration.sql
 ```
 
 ### Scaling
