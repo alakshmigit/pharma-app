@@ -1,0 +1,31 @@
+# Minimal requirements for backend API only (no Streamlit)
+# Use this if you're having issues with pyarrow/streamlit installation
+
+# Core FastAPI and server
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary
+
+# Data validation and serialization
+pydantic==2.5.0
+
+# HTTP and file handling
+python-multipart==0.0.6
+requests==2.31.0
+
+# Data processing (lightweight version)
+pandas==2.1.3
+
+# Configuration
+python-dotenv==1.0.0
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Note: Streamlit is excluded to avoid pyarrow build issues
+# Install separately once pyarrow is resolved:
+# pip install streamlit==1.28.1
