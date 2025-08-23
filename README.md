@@ -508,6 +508,71 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **JWT** for secure authentication
 - The pharmaceutical industry for inspiring this comprehensive solution
 
+## 🔧 **Troubleshooting**
+
+### Common Installation Issues
+
+#### **PyArrow Build Error**
+If you encounter `ERROR: Failed building wheel for pyarrow`:
+
+**Quick Fix:**
+```bash
+# Use the automated installer
+./install_dependencies.sh    # Linux/macOS
+# OR
+install_dependencies.bat     # Windows
+```
+
+**Manual Fix:**
+```bash
+# Try pre-built wheel first
+pip install --upgrade pip
+pip install --only-binary=pyarrow pyarrow
+
+# If that fails, install minimal backend only
+pip install -r requirements-minimal.txt
+```
+
+**See detailed solutions**: [PYARROW_FIX.md](PYARROW_FIX.md)
+
+#### **Import Errors**
+If you get `ImportError: attempted relative import with no known parent package`:
+
+✅ **Fixed in latest version!** 
+- Run from project root: `uvicorn backend.main:app --host 0.0.0.0 --port 8000`
+- See: [IMPORT_FIX_SUMMARY.md](IMPORT_FIX_SUMMARY.md)
+
+#### **Database Connection Issues**
+```bash
+# Check PostgreSQL is running
+sudo systemctl status postgresql  # Linux
+brew services list | grep postgres  # macOS
+
+# Initialize database
+python database/init_db.py
+```
+
+#### **Port Already in Use**
+```bash
+# Kill processes on ports 8000 or 8501
+sudo lsof -ti:8000 | xargs kill -9  # Backend
+sudo lsof -ti:8501 | xargs kill -9  # Frontend
+```
+
+### Alternative Installation Methods
+
+#### **Backend Only (No Streamlit)**
+```bash
+pip install -r requirements-minimal.txt
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
+```
+
+#### **Docker Installation**
+```bash
+docker build -t pharma-app .
+docker run -p 8000:8000 -p 8501:8501 pharma-app
+```
+
 ---
 
 ## 🎯 **Next Steps**
@@ -526,3 +591,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Local Setup Guide**: [LOCAL_SETUP.md](LOCAL_SETUP.md)
 - **AWS Deployment**: [DEPLOYMENT.md](DEPLOYMENT.md)
 - **Installation Summary**: [INSTALLATION_SUMMARY.md](INSTALLATION_SUMMARY.md)
+- **PyArrow Fix Guide**: [PYARROW_FIX.md](PYARROW_FIX.md)
+- **Import Fix Summary**: [IMPORT_FIX_SUMMARY.md](IMPORT_FIX_SUMMARY.md)
