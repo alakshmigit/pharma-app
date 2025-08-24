@@ -123,14 +123,18 @@ def initialize_database():
     """Initialize database with tables and sample data"""
     print("Initializing database...")
     try:
-        from database.init_db import create_database, create_tables, create_sample_data
+        # Use the standalone initialization script
+        import subprocess
+        result = subprocess.run([sys.executable, 'init_database.py'], 
+                              capture_output=True, text=True)
         
-        create_database()
-        create_tables()
-        create_sample_data()
-        
-        print("✅ Database initialized successfully")
-        return True
+        if result.returncode == 0:
+            print("✅ Database initialized successfully")
+            print(result.stdout)
+            return True
+        else:
+            print(f"❌ Failed to initialize database: {result.stderr}")
+            return False
     except Exception as e:
         print(f"❌ Failed to initialize database: {e}")
         return False

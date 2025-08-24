@@ -1,8 +1,13 @@
 import psycopg2
 from psycopg2 import sql, Error
 import os
+import sys
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+
+# Add the parent directory to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config.database import Base, engine
 from backend.models import Order, SubOrder
 
