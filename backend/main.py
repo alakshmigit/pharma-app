@@ -70,5 +70,19 @@ def update_sub_order_status(sub_order_id: int, status: schemas.StatusEnum, db: S
         raise HTTPException(status_code=404, detail="Sub-order not found")
     return {"message": "Sub-order status updated successfully"}
 
+@app.put("/sub-orders/{sub_order_id}", response_model=schemas.SubOrder)
+def update_sub_order(sub_order_id: int, sub_order: schemas.SubOrderUpdate, db: Session = Depends(get_db)):
+    db_sub_order = crud.update_sub_order(db, sub_order_id=sub_order_id, sub_order_update=sub_order)
+    if db_sub_order is None:
+        raise HTTPException(status_code=404, detail="Sub-order not found")
+    return db_sub_order
+
+@app.get("/sub-orders/{sub_order_id}", response_model=schemas.SubOrder)
+def read_sub_order(sub_order_id: int, db: Session = Depends(get_db)):
+    db_sub_order = crud.get_sub_order(db, sub_order_id=sub_order_id)
+    if db_sub_order is None:
+        raise HTTPException(status_code=404, detail="Sub-order not found")
+    return db_sub_order
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

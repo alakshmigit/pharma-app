@@ -231,16 +231,68 @@ def show_view_orders():
                 # Sub-orders section
                 if order_id in sub_orders_by_order and sub_orders_by_order[order_id]:
                     st.write("**Sub-Orders:**")
+                    
+                    # Create a table-like display for sub-orders
                     sub_order_data = []
                     for sub_order in sub_orders_by_order[order_id]:
+                        sub_order_date = sub_order.get('sub_order_date')
+                        sub_order_date_str = pd.to_datetime(sub_order_date).strftime('%Y-%m-%d') if sub_order_date else 'Not set'
+                        
+                        approved_first = sub_order.get('approved_by_first_name') or ''
+                        approved_last = sub_order.get('approved_by_last_name') or ''
+                        approved_by = f"{approved_first} {approved_last}".strip() or 'Not set'
+                        
                         sub_order_data.append({
                             'Sub-Order ID': sub_order['sub_order_id'],
                             'Ingredient': sub_order['ingredient_type'].title(),
-                            'Status': sub_order['status']
+                            'Status': sub_order['status'],
+                            'Sub-Order Date': sub_order_date_str,
+                            'Vendor Company': sub_order.get('vendor_company') or 'Not set',
+                            'Designer': sub_order.get('designer_name') or 'Not set',
+                            'Approved By': approved_by,
+                            'Sizes': sub_order.get('sizes') or 'Not set'
                         })
                     
                     sub_df = pd.DataFrame(sub_order_data)
                     st.dataframe(sub_df, use_container_width=True, hide_index=True)
+                    
+                    # Show detailed view for each sub-order in a more compact format
+                    st.write("**📋 Sub-Order Details:**")
+                    for sub_order in sub_orders_by_order[order_id]:
+                        st.markdown(f"**🔧 Sub-Order #{sub_order['sub_order_id']} - {sub_order['ingredient_type'].title()}**")
+                        
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.write(f"• **Status:** {sub_order['status']}")
+                            st.write(f"• **Vendor:** {sub_order.get('vendor_company') or 'Not specified'}")
+                            st.write(f"• **Product:** {sub_order.get('product_name') or 'Not specified'}")
+                        
+                        with col2:
+                            st.write(f"• **Designer:** {sub_order.get('designer_name') or 'Not specified'}")
+                            st.write(f"• **Sizes:** {sub_order.get('sizes') or 'Not specified'}")
+                            
+                            approved_first = sub_order.get('approved_by_first_name') or ''
+                            approved_last = sub_order.get('approved_by_last_name') or ''
+                            approved_by = f"{approved_first} {approved_last}".strip()
+                            st.write(f"• **Approved By:** {approved_by or 'Not specified'}")
+                        
+                        with col3:
+                            sub_order_date = sub_order.get('sub_order_date')
+                            if sub_order_date:
+                                st.write(f"• **Sub-Order Date:** {pd.to_datetime(sub_order_date).strftime('%Y-%m-%d')}")
+                            else:
+                                st.write("• **Sub-Order Date:** Not specified")
+                            
+                            approved_date = sub_order.get('approved_date')
+                            if approved_date:
+                                st.write(f"• **Approved Date:** {pd.to_datetime(approved_date).strftime('%Y-%m-%d')}")
+                            else:
+                                st.write("• **Approved Date:** Not specified")
+                        
+                        if sub_order.get('remarks'):
+                            st.write(f"• **Remarks:** {sub_order['remarks']}")
+                        
+                        st.markdown("---")
                 else:
                     st.info("No sub-orders for this order.")
     else:
@@ -270,23 +322,74 @@ def show_sub_orders():
         if ingredient_filter != "All":
             filtered_df = filtered_df[filtered_df['ingredient_type'] == ingredient_filter]
         
-        st.dataframe(filtered_df, use_container_width=True)
+        # Display summary table with key fields
+        summary_columns = ['sub_order_id', 'ingredient_type', 'status', 'vendor_company', 'designer_name', 'approved_by_first_name', 'approved_by_last_name']
+        display_df = filtered_df[summary_columns].copy()
+        display_df.columns = ['Sub-Order ID', 'Ingredient', 'Status', 'Vendor Company', 'Designer', 'Approved By (First)', 'Approved By (Last)']
+        st.dataframe(display_df, use_container_width=True)
         
-        # Update sub-order status
+        # Detailed sub-order management
         if not filtered_df.empty:
-            st.subheader("Update Sub-Order Status")
-            col1, col2, col3 = st.columns(3)
+            st.subheader("📝 Edit Sub-Order Details")
             
-            with col1:
-                selected_sub_order = st.selectbox("Select Sub-Order ID", filtered_df['sub_order_id'].tolist())
-            with col2:
-                new_status = st.selectbox("New Status", ["Open", "In-Process", "Closed"])
-            with col3:
-                if st.button("Update Status"):
-                    result = make_api_request("PUT", f"/sub-orders/{selected_sub_order}/status", {"status": new_status})
+            # Select sub-order to edit
+            selected_sub_order_id = st.selectbox("Select Sub-Order to Edit", filtered_df['sub_order_id'].tolist())
+            
+            # Get selected sub-order details
+            selected_sub_order = filtered_df[filtered_df['sub_order_id'] == selected_sub_order_id].iloc[0]
+            
+            # Create form for editing
+            with st.form(f"edit_sub_order_{selected_sub_order_id}"):
+                st.write(f"**Editing Sub-Order #{selected_sub_order_id} - {selected_sub_order['ingredient_type'].title()}**")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    status = st.selectbox("Status", ["Open", "In-Process", "Closed"], 
+                                        index=["Open", "In-Process", "Closed"].index(selected_sub_order['status']))
+                    vendor_company = st.text_input("Vendor Company", value=selected_sub_order.get('vendor_company') or "")
+                    product_name = st.text_input("Product Name", value=selected_sub_order.get('product_name') or "")
+                    designer_name = st.text_input("Designer Name", value=selected_sub_order.get('designer_name') or "")
+                    sizes = st.text_input("Sizes", value=selected_sub_order.get('sizes') or "")
+                    
+                with col2:
+                    sub_order_date = st.date_input("Sub-Order Date", 
+                                                 value=pd.to_datetime(selected_sub_order.get('sub_order_date')).date() if selected_sub_order.get('sub_order_date') else None)
+                    main_order_date = st.date_input("Main Order Date", 
+                                                   value=pd.to_datetime(selected_sub_order.get('main_order_date')).date() if selected_sub_order.get('main_order_date') else None)
+                    approved_by_first_name = st.text_input("Approved By (First Name)", value=selected_sub_order.get('approved_by_first_name') or "")
+                    approved_by_last_name = st.text_input("Approved By (Last Name)", value=selected_sub_order.get('approved_by_last_name') or "")
+                    approved_date = st.date_input("Approved Date", 
+                                                value=pd.to_datetime(selected_sub_order.get('approved_date')).date() if selected_sub_order.get('approved_date') else None)
+                
+                remarks = st.text_area("Remarks", value=selected_sub_order.get('remarks') or "", height=100)
+                
+                submitted = st.form_submit_button("Update Sub-Order", type="primary")
+                
+                if submitted:
+                    # Prepare update data
+                    update_data = {
+                        "status": status,
+                        "vendor_company": vendor_company if vendor_company else None,
+                        "product_name": product_name if product_name else None,
+                        "designer_name": designer_name if designer_name else None,
+                        "sizes": sizes if sizes else None,
+                        "approved_by_first_name": approved_by_first_name if approved_by_first_name else None,
+                        "approved_by_last_name": approved_by_last_name if approved_by_last_name else None,
+                        "remarks": remarks if remarks else None,
+                        "sub_order_date": f"{sub_order_date.isoformat()}T00:00:00" if sub_order_date else None,
+                        "main_order_date": f"{main_order_date.isoformat()}T00:00:00" if main_order_date else None,
+                        "approved_date": f"{approved_date.isoformat()}T00:00:00" if approved_date else None
+                    }
+                    
+                    # Make API call
+                    result = make_api_request("PUT", f"/sub-orders/{selected_sub_order_id}", update_data)
+                    
                     if result:
-                        st.success("Sub-order status updated successfully!")
+                        st.success("✅ Sub-order updated successfully!")
                         st.experimental_rerun()
+                    else:
+                        st.error("❌ Failed to update sub-order")
     else:
         st.info("No sub-orders found.")
 

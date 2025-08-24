@@ -98,3 +98,16 @@ def update_sub_order_status(db: Session, sub_order_id: int, status: schemas.Stat
         db.commit()
         db.refresh(db_sub_order)
     return db_sub_order
+
+def get_sub_order(db: Session, sub_order_id: int):
+    return db.query(models.SubOrder).filter(models.SubOrder.sub_order_id == sub_order_id).first()
+
+def update_sub_order(db: Session, sub_order_id: int, sub_order_update: schemas.SubOrderUpdate):
+    db_sub_order = db.query(models.SubOrder).filter(models.SubOrder.sub_order_id == sub_order_id).first()
+    if db_sub_order:
+        update_data = sub_order_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_sub_order, field, value)
+        db.commit()
+        db.refresh(db_sub_order)
+    return db_sub_order

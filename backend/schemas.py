@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 from enum import Enum
 
 class StatusEnum(str, Enum):
@@ -50,9 +51,32 @@ class OrderUpdate(BaseModel):
 class SubOrderBase(BaseModel):
     ingredient_type: str
     status: StatusEnum = StatusEnum.OPEN
+    sub_order_date: Optional[datetime] = None
+    vendor_company: Optional[str] = None
+    product_name: Optional[str] = None
+    main_order_date: Optional[datetime] = None
+    designer_name: Optional[str] = None
+    sizes: Optional[str] = None
+    approved_by_first_name: Optional[str] = None
+    approved_by_last_name: Optional[str] = None
+    approved_date: Optional[datetime] = None
+    remarks: Optional[str] = None
 
 class SubOrderCreate(SubOrderBase):
     order_id: int
+
+class SubOrderUpdate(BaseModel):
+    status: Optional[StatusEnum] = None
+    sub_order_date: Optional[datetime] = None
+    vendor_company: Optional[str] = None
+    product_name: Optional[str] = None
+    main_order_date: Optional[datetime] = None
+    designer_name: Optional[str] = None
+    sizes: Optional[str] = None
+    approved_by_first_name: Optional[str] = None
+    approved_by_last_name: Optional[str] = None
+    approved_date: Optional[datetime] = None
+    remarks: Optional[str] = None
 
 class SubOrder(SubOrderBase):
     sub_order_id: int
