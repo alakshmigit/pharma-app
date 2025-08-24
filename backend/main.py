@@ -1,14 +1,27 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError
 from typing import List
 import uvicorn
+import logging
 
 from . import crud, models, schemas
 from config.database import SessionLocal, engine, get_db
 
-# Create database tables
-models.Base.metadata.create_all(bind=engine)
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create database tables with error handling
+try:
+    models.Base.metadata.create_all(bind=engine)
+    logger.info("Database tables created successfully")
+except OperationalError as e:
+    logger.error(f"Database connection failed: {e}")
+    logger.error("Please ensure PostgreSQL is running and accessible")
+except Exception as e:
+    logger.error(f"Error creating database tables: {e}")
 
 app = FastAPI(title="Order Management API", version="1.0.0")
 
@@ -24,6 +37,25 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "Order Management API"}
+
+@app.get("/health")
+def health_check(db: Session = Depends(get_db)):
+    """Health check endpoint to verify database connectivity"""
+    try:
+        # Try to execute a simple query
+        db.execute("SELECT 1")
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "message": "PostgreSQL database is accessible"
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=503, detail={
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e)
+        })
 
 @app.post("/orders/", response_model=schemas.Order)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
